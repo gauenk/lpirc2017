@@ -1,0 +1,14 @@
+import os,sys,tempfile
+import numpy as np
+
+def numpy_to_memory(obj):
+    llp = tempfile.mkstemp(prefix='gauenk',dir='/dev/shm',text=True)
+    np.savetxt(llp[1], obj, fmt='%.18e')
+    os.close(llp[0])
+    print(llp[1])
+    return llp[1]
+
+def numpy_from_memory(filename):
+    arr =  np.fromfile(filename,sep="\n")
+    os.remove(filename)
+    return arr

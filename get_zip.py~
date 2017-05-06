@@ -1,0 +1,75 @@
+import os,sys,zipfile
+import pycurl
+import numpy as np
+from urllib import urlencode
+from StringIO import StringIO
+import atexit,cv2
+host_ipaddress = '192.168.1.2'
+host_port = '5041'
+username = 'lpirc'
+password = 'pass'
+image_directory = './images'
+temp_directory = './temp'
+token = sys.argv[1]
+
+from PIL import Image
+from numpy import array, all, float32, uint8
+
+count = 0
+
+print(sys.argv[0])
+
+ 	
+#global image_directory
+#global temp_directory
+c = pycurl.Curl()
+c.setopt(c.URL, host_ipaddress+':'+host_port+'/zipimages')#/?image='+str(image_number))
+post_data = {'token':token, 'image_name':str(1)}
+postfields = urlencode(post_data)
+c.setopt(c.POSTFIELDS,postfields)
+#try:
+#        os.stat(temp_directory)
+#except:
+#        os.mkdir(temp_directory)
+#try:
+#        os.stat(image_directory)
+#except:
+#        os.mkdir(image_directory)
+    # Image will be saved as a file
+    #with open(temp_directory+'/'+str(image_number)+'.zip', 'wb') as f:
+my_buffer = StringIO()    
+c.setopt(c.WRITEDATA,my_buffer)
+	#c.setopt(c.WRITEDATA, f)
+c.perform()
+status = c.getinfo(pycurl.HTTP_CODE)
+c.close()
+my_z = zipfile.ZipFile(my_buffer)
+for n in my_z.namelist():
+	#t = np.fromstring(my_z.read(n))
+	mbuffer = StringIO(my_z.read(n))
+	print("MADE BUFFER")
+	#print(mbuffer.getvalue() == img)
+	#print(Image.open(mbuffer))
+	img = np.asarray(Image.open(mbuffer), dtype=np.uint8)
+	print("opened")	
+	#sys.stdout.write(repr(img).replace("\n","").strip()+ '\n')
+	sys.stdout.write(np.array_repr(img)+'\n')
+	#print(img)
+	
+    
+    #print(my_buffer.getvalue())
+#if status == 200:
+        # Server replied OK so, copy the image from temp_directory to image_directory
+    #shutil.move(temp_directory+'/'+str(image_number)+'.jpg',image_directory+'/'+str(image_number)+'.jpg')
+#elif status == 401:
+        # Server replied 401, Unauthorized Access, remove the temporary file
+ #   os.remove(temp_directory+'/'+str(image_number)+'.jpg')
+ #   print "Invalid Token\n"#
+#else:
+    # Server replied 406, Not Acceptable, remove the temporary file
+ #   os.remove(temp_directory+'/'+str(image_number)+'.jpg')
+ #   print "The image number is not Acceptable\n"
+
+print(str(1))
+print('exit')
+sys.exit()
